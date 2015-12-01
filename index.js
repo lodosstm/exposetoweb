@@ -4,31 +4,37 @@ var path      = require('path');
 var optimist  = require('optimist');
 var node_uuid = require('node-uuid');
 
-optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--ps] [--uuid]');
-optimist.alias('h', 'help');
-optimist.alias('v', 'verbose');
-optimist.describe('h', 'show this help');
-optimist.describe('lh', 'local server address (default localhost)');
-optimist.describe('lp', 'local server port (default 3001)');
-optimist.describe('ps', 'socket pool size (default 10)');
-optimist.describe('rh', 'remote server address (default localhost)');
-optimist.describe('rp', 'remote server port (default 5000)');
-optimist.describe('uuid', 'path to uuid file (default ./uuid)');
-optimist.describe('v', 'enable verbose mode');
+var argv      = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--ps] [--uuid]')
+  .alias('h', 'help')
+  .alias('v', 'verbose')
+  .default('lh', 'localhost')
+  .default('lp', 3001)
+  .default('rh', 'localhost')
+  .default('rp', 5000)
+  .default('ps', 10)
+  .default('uuid', './uuid')
+  .describe('h', 'show this help')
+  .describe('lh', 'local server address')
+  .describe('lp', 'local server port')
+  .describe('ps', 'socket pool size')
+  .describe('rh', 'remote server address (default localhost)')
+  .describe('rp', 'remote server port')
+  .describe('uuid', 'path to uuid file')
+  .describe('v', 'enable verbose mode')
+  .argv;
 
 var uuid;
-var argv    = optimist.argv;
 var config  = {
   local_server: {
-    host: argv.lh || 'localhost',
-    port: argv.lp || 3001
+    host: argv.lh,
+    port: Number(argv.lp)
   }, 
   remote_server: {
-    host: argv.rh || 'localhost',
-    port: argv.rp || 5000
+    host: argv.rh,
+    port: Number(argv.rp)
   },
-  pool_size: argv.ps || 10,
-  uuid_file: argv.uuid || path.join(__dirname, 'uuid'),
+  pool_size: Number(argv.ps),
+  uuid_file: path.resolve(argv.uuid),
   debug: argv.v || argv.verbose || false
 };
 

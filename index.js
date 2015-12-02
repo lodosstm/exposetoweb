@@ -141,7 +141,7 @@ function createPoolConnection () {
 
 test_local_connection(function (err) {
   if (err) {
-    console.error('Could not connect to local server.');
+    console.error('Could not connect to local server (%s:%d)', config.local_server.host, config.local_server.port);
     process.exit(1);
   }
   var remote_client = net.connect(config.remote_server.port, config.remote_server.host, function() {
@@ -156,7 +156,7 @@ test_local_connection(function (err) {
   });
 
   remote_client.on('error', function() {
-    console.error('Could not connect to remote server.');
+    console.error('Could not connect to remote server (%s:%d)', config.remote_server.host, config.remote_server.port);
   });
 
   remote_client.on('end', function() {

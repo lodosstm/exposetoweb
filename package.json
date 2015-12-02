@@ -1,10 +1,9 @@
 {
-  "name": "client",
+  "name": "proxyclient",
   "version": "1.0.0",
-  "description": "",
+  "description": "Client for proxy server",
   "main": "index.js",
-  "scripts": {},
-  "author": "",
+  "author": "lodossteam",
   "license": "ISC",
   "dependencies": {
     "node-uuid": "^1.4.7",

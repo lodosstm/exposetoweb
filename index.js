@@ -10,7 +10,7 @@ var argv      = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--ps
   .alias('v', 'verbose')
   .default('lh', 'localhost')
   .default('lp', 3001)
-  .default('rh', 'localhost')
+  .default('rh', 'proxy.ldste.am')
   .default('rp', 5000)
   .default('ps', 10)
   .default('uuid', './uuid')

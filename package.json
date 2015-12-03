@@ -1,7 +1,7 @@
 {
-  "name": "proxyclient",
-  "version": "1.0.2",
-  "description": "Client for proxy server",
+  "name": "exposetoweb",
+  "version": "1.0.0",
+  "description": "Expose your local development to the web with a single command",
   "main": "index.js",
   "author": "lodossteam",
   "license": "ISC",
@@ -10,6 +10,9 @@
     "optimist": "^0.6.1"
   },
   "bin": {
-    "proxy-client": "./index.js"
-  }
+    "exposetoweb": "./index.js"
+  },
+  "homepage": "http://proxy.ldste.am",
+  "keywords": [
+  ]
 }

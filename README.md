@@ -1,20 +1,31 @@
-# Client
 
-### Required
+### Use-cases
+1. Expose your local development to the web with a single command
+1. Test webhooks
+1. Show your work to employer
 
-Check that you have installed:
+### Install and Run
+Install this globally and you'll have access to the exposetoweb command anywhere on your system.
+```bash
+$ npm install -g exposetoweb
+$ exposetoweb
+```
 
-+   nodejs
+If you prefer do not install packages globally then install exposetoweb locally with `npm install exposetoweb --save-dev`. Now exposetoweb located in your local `node_modules/.bin` folder.
 
-### Run
+### Usage
+```bash
+$ exposetoweb -h
+Usage: exposetoweb [-v] [--rh] [--rp] [--lh] [--lp] [--ps] [--uuid] [--rewrite-host]
 
-For start client:
-
-1. 	go to project directory
-1.  run `$ npm install`
-1.  run `$ node index -h` to get help
-1.  run `$ node index` to start client
-
-###
-
-This app was tested under Ubuntu 14.04.3 LTS (trusty), Mac OS X 10.10.5 (Yosemite)
+Options:
+  -h, --help      show this help
+  --lh            local server address                       [default: "localhost"]
+  --lp            local server port                          [default: 3001]
+  --ps            socket pool size                           [default: 10]
+  --rh            remote server address (default localhost)  [default: "proxy.ldste.am"]
+  --rp            remote server port                         [default: 5000]
+  --uuid          path to uuid file                          [default: "~/.exposetoweb-uuid"]
+  -v, --verbose   enable verbose mode
+  --rewrite-host  rewrite hostname in http headers
+```

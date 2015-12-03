@@ -21,7 +21,7 @@ var argv      = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--ps
   .default('rh', 'proxy.ldste.am')
   .default('rp', 5000)
   .default('ps', 10)
-  .default('uuid', path.resolve(process.env.HOME, '.proxy-client-uuid'))
+  .default('uuid', path.resolve(process.env.HOME, '.exposetoweb_uuid'))
   .describe('h', 'show this help')
   .describe('lh', 'local server address')
   .describe('lp', 'local server port')

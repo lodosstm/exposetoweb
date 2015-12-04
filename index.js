@@ -26,7 +26,7 @@ var argv      = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--ps
   .describe('lh', 'local server address')
   .describe('lp', 'local server port')
   .describe('ps', 'socket pool size')
-  .describe('rh', 'remote server address (default localhost)')
+  .describe('rh', 'remote server address')
   .describe('rp', 'remote server port')
   .describe('uuid', 'path to uuid file')
   .describe('v', 'enable verbose mode')

@@ -23,7 +23,7 @@ Options:
   --lh            local server address                       [default: "localhost"]
   --lp            local server port                          [default: 3001]
   --ps            socket pool size                           [default: 10]
-  --rh            remote server address (default localhost)  [default: "proxy.ldste.am"]
+  --rh            remote server address                      [default: "proxy.ldste.am"]
   --rp            remote server port                         [default: 5000]
   --uuid          path to uuid file                          [default: "~/.exposetoweb-uuid"]
   -v, --verbose   enable verbose mode

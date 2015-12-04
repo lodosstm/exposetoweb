@@ -156,6 +156,14 @@ test_local_connection(function (err) {
     }
   });
 
+  process.on('exit', function () {
+    remote_client.end();
+  });
+
+  process.on('uncaughtException', function () {
+    remote_client.end();
+  });
+
   remote_client.on('error', function() {
     console.error('Could not connect to remote server (%s:%d)', config.remote_server.host, config.remote_server.port);
   });

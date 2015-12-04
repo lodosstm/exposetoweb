@@ -111,6 +111,7 @@ function createPoolConnection () {
     remote_socket.write(JSON.stringify({uuid: uuid}));
 
     remote_socket.once('data', function (data) {
+      remote_socket.pause();
       console.debug('Incoming message: ', data.toString());
       createPoolConnection();
       var local_client = net.connect(config.local_server.port, config.local_server.host, function() {

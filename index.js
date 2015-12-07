@@ -150,14 +150,42 @@ test_local_connection(function (err) {
     console.log('Connection estabilished.\n%s.%s <-> %s:%s', uuid, config.remote_server.host, config.local_server.host, config.local_server.port);
 
     remote_client.write(JSON.stringify({uuid: uuid}));
+    var timer = setTimeout(function() {
+      console.log('Server does not respond');
+      process.exit();
+    }, 1000);
+    remote_client.once('data', function (data) {
+      if (!JSON.parse(data.toString()).ok) {
+        console.error('Connection was closed by server');
+        return remote_client.end();
+      }
+      clearTimeout(timer);
+      for (var i = 0; i < config.pool_size; i++) {
+        createPoolConnection();
+      }
 
-    for (var i = 0; i < config.pool_size; i++) {
-      createPoolConnection();
-    }
+      var interval = setInterval(function () {
+        console.debug('Sending ping request to server');
+
+        remote_client.once('data', function (data) {
+          console.debug('Ping response: ' + data.toString());
+          if (data.toString() !== 'pong') {
+            console.error('Invalid ping response');
+          }
+        });
+
+        remote_client.write('ping');
+      }, 5000);
+    });
   });
 
-  function cleanUp () {
-    console.warn('Close master socket')
+
+  function cleanUp (e) {
+    if (e) {
+      console.error(e);
+      console.error(e.stack);
+    }
+    console.debug('Close master socket');
     remote_client.end();
     process.exit();
   }
@@ -165,7 +193,8 @@ test_local_connection(function (err) {
   process.on('SIGINT', cleanUp);
   process.on('uncaughtException', cleanUp);
 
-  remote_client.on('error', function() {
+  remote_client.on('error', function(e) {
+    console.log(e);
     console.error('Could not connect to remote server (%s:%d)', config.remote_server.host, config.remote_server.port);
   });
 

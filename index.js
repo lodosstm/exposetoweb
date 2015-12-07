@@ -156,13 +156,14 @@ test_local_connection(function (err) {
     }
   });
 
-  process.on('exit', function () {
+  function cleanUp () {
+    console.warn('Close master socket')
     remote_client.end();
-  });
+    process.exit();
+  }
 
-  process.on('uncaughtException', function () {
-    remote_client.end();
-  });
+  process.on('SIGINT', cleanUp);
+  process.on('uncaughtException', cleanUp);
 
   remote_client.on('error', function() {
     console.error('Could not connect to remote server (%s:%d)', config.remote_server.host, config.remote_server.port);

@@ -155,7 +155,14 @@ test_local_connection(function (err) {
       process.exit();
     }, 1000);
     remote_client.once('data', function (data) {
-      if (!JSON.parse(data.toString()).ok) {
+      var body;
+      console.log(data.toString())
+      try {
+        body = JSON.parse(data.toString());
+      } catch (e) {
+
+      }
+      if (!body || !body.ok) {
         console.error('Connection was closed by server');
         return remote_client.end();
       }
@@ -196,9 +203,11 @@ test_local_connection(function (err) {
   remote_client.on('error', function(e) {
     console.log(e);
     console.error('Could not connect to remote server (%s:%d)', config.remote_server.host, config.remote_server.port);
+    cleanUp();
   });
 
-  remote_client.on('end', function() {
+  remote_client.on('close', function() {
     console.debug('disconnected from remote server');
+    cleanUp();
   });
 });

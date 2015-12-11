@@ -1,18 +1,24 @@
 {
   "name": "exposetoweb",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Expose your local development to the web with a single command",
-  "main": "index.js",
+  "main": "lib/index.js",
   "author": "lodossteam",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^3.10.1",
     "node-uuid": "^1.4.7",
     "optimist": "^0.6.1"
   },
   "bin": {
-    "exposetoweb": "./index.js"
+    "exposetoweb": "bin/exposetoweb.js"
   },
   "homepage": "http://proxy.ldste.am",
-  "keywords": [
-  ]
+  "keywords": [],
+  "preferGlobal": "true",
+  "devDependencies": {
+    "mocha": "^2.3.4",
+    "should": "^8.0.1",
+    "sinon": "^1.17.2"
+  }
 }

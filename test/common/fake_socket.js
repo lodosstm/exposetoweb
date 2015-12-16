@@ -2,12 +2,15 @@ var util      = require('util');
 var events    = require('events');
 var Transform = require('stream').Transform;
 
+var id = 0;
+
 function FakeSocket (onConnect) {
   if (onConnect) {
     this.on('connect', onConnect);
   }
   this.closed = false;
   this.pipes = [];
+  this.id = id++;
 }
 
 FakeSocket.prototype.connect = function (timeout) {
@@ -23,6 +26,14 @@ FakeSocket.prototype.end = function () {
     this.closed = true;
     this.pipes.splice(-this.pipes.length);
     this.emit('end');
+    this.emit('close', false);
+  }
+};
+
+FakeSocket.prototype.destroy = function () {
+  if (!this.closed) {
+    this.closed = true;
+    this.pipes.splice(-this.pipes.length);
     this.emit('close', false);
   }
 };
@@ -44,6 +55,9 @@ FakeSocket.prototype.unref = function () {
 };
 
 FakeSocket.prototype.pause = function () {
+};
+
+FakeSocket.prototype.setNoDelay = function () {
 };
 
 FakeSocket.prototype.pipe = function (socket) {

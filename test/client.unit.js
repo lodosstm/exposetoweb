@@ -520,3 +520,87 @@ describe('Client', function () {
     });
   });
 });
+
+
+describe('Net errors emulation', function () {
+  beforeEach(function () {
+    var self = this;
+
+    self.client = exposetoweb({pool_size: 1});
+    self.sockets = [];
+
+    self.net_stub = sinon.stub(net, 'connect', function (port, host, cb) {
+      var socket = new FakeSocket(cb);
+      socket.host = host;
+      socket.port = port;
+      self.sockets.push(socket);
+      return socket;
+    });
+  });
+
+  it('Should try to connect with timeout error in master socket', function () {
+    var local_test_socket, master_socket, pool;
+    var callback = sinon.stub();
+    var error = new Error('connect ETIMEDOUT 46.101.13.126:5000');
+
+    this.client.connect(callback);
+    local_test_socket = this.sockets[0];
+    local_test_socket.connect();
+
+    master_socket = this.sockets[1];
+    master_socket.error(error);
+
+    callback.calledOnce.should.be.true();
+    callback.firstCall.args[0].should.be.eql(error);
+  });
+
+  it('Should try to connect with timeout error in pool socket', function () {
+    var error = new Error('connect ETIMEDOUT 46.101.13.126:5000');
+    var stub = sinon.stub(this.client, '__remove_from_pool');
+
+    this.client.connect();
+    var local_test_socket = this.sockets[0];
+    local_test_socket.connect();
+
+    var master_socket = this.sockets[1];
+    master_socket.connect();
+    master_socket.data(JSON.stringify({ok: true}));
+
+    this.sockets[2].error(error);
+    stub.calledOnce.should.be.true();
+
+    stub.restore();
+  });
+
+  it('Should try to reconnect when error in master socket happens after successful connection', function () {
+    var error = new Error('connect ETIMEDOUT 46.101.13.126:5000');
+
+    this.client.connect();
+    var local_test_socket = this.sockets[0];
+    local_test_socket.connect();
+
+    var close_stub = sinon.stub(this.client, 'close', function (cb) {
+      should.exists(cb);
+      cb.should.be.a.Function();
+      return cb();
+    });
+    var connect_stub = sinon.stub(this.client, 'connect');
+
+    var master_socket = this.sockets[1];
+    master_socket.connect();
+    master_socket.data(JSON.stringify({ok: true}));
+    master_socket.error(error);
+
+    close_stub.calledOnce.should.be.true();
+    connect_stub.calledOnce.should.be.true();
+  });
+
+  afterEach(function (done) {
+    this.net_stub.restore();
+    if (this.client.connected) {
+      this.client.close(done);
+    } else {
+      done();
+    }
+  });
+});

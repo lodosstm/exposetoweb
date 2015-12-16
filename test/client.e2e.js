@@ -6,16 +6,22 @@ var request = require('request');
 var random  = require('./common/random');
 var console_utils = require('./common/console_utils');
 
-var client = require('../lib')();
-
 var obj       = random.obj(3000);
 var postData  = JSON.stringify(obj);
 
 var requests_count = 1000;
 var concurency = 300;
 
-describe('Client', function () {
+var client = require('../lib')({
+  pool_size: 10,
+  remote_server: {
+    host: 'proxy.ldste.am'
+  }
+});
+
+describe('Client-Server requests', function () {
   before(function (done) {
+    this.timeout(requests_count / 10 * 1000); //ms
     var self = this;
 
     self.requests = [];
@@ -39,6 +45,7 @@ describe('Client', function () {
     });
     
     self.server.listen(3001, '127.0.0.1', done);
+    // done()
   });
 
   it('should be not connected', function () {
@@ -61,7 +68,7 @@ describe('Client', function () {
   });
 
   it('should make ' + requests_count + ' requests', function (done) {
-    this.timeout(requests_count / 10 * 1000); //ms
+    this.timeout(requests_count / 10 * 1000); // ms (10 req/sec)
     var self = this;
 
     var res_count = 0;
@@ -69,7 +76,11 @@ describe('Client', function () {
     function send (req) {
       request.post({
         url: 'http://' + self.url,
-        json: req
+        json: req,
+        timeout: 10000,
+        headers: {
+          'Host': self.url
+        }
       }, function (err, res, body) {
         if (err || !body || res.statusCode !== 200) {
           console.error(err, body);
@@ -114,34 +125,3 @@ describe('Client', function () {
     });
   });
 });
-
-
-
-//     var req = http.request({
-//       hostname: url,
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Content-Length': postData.length
-//       }
-//     }, function (res) {
-//       assert.strictEqual(res.statusCode, 200, 'Server should response with 200 OK');
-//       assert.strictEqual(res.headers.received, 'true', 'Server should send "Received: true" header');
-
-//       var body = '';
-//       res.on('data', function(chunk) {
-//         body += chunk.toString();
-//       });
-//       res.on('end', function () {
-//         assert.strictEqual(body, postData);
-//         server.close();
-//         client.close(function () {
-//           assert.strictEqual(client.connected, false, 'Client should be disconnected');
-//           assert.strictEqual(client.closed, true, 'Client should be closed');
-//         });
-//       });
-//     });
-
-//     req.write(postData);
-//     req.end();
-//   });
-// });

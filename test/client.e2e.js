@@ -10,12 +10,11 @@ var obj       = random.obj(3000);
 var postData  = JSON.stringify(obj);
 
 var requests_count = 1000;
-var concurency = 300;
+var concurency = 30;
 
 var client = require('../lib')({
-  pool_size: 10,
   remote_server: {
-    host: 'proxy.ldste.am'
+    host: 'exposetoweb'
   }
 });
 
@@ -43,7 +42,7 @@ describe('Client-Server requests', function () {
         res.end();
       });
     });
-    
+
     self.server.listen(3001, '127.0.0.1', done);
     // done()
   });
@@ -58,7 +57,7 @@ describe('Client-Server requests', function () {
 
     client.connect(function (err, url) {
       should.not.exists(err);
-      
+
       should.exists(url);
       url.should.be.equal(util.format('%s.%s', client.uuid, client.config.remote_server.host));
       self.url = url;
@@ -77,10 +76,7 @@ describe('Client-Server requests', function () {
       request.post({
         url: 'http://' + self.url,
         json: req,
-        timeout: 10000,
-        headers: {
-          'Host': self.url
-        }
+        timeout: 10000
       }, function (err, res, body) {
         if (err || !body || res.statusCode !== 200) {
           console.error(err, body);

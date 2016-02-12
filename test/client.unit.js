@@ -187,162 +187,6 @@ describe('Client', function () {
     });
   });
 
-  describe('__setup_socket_pool method', function () {
-    it('should call __create_pool_connection method exactly "client.config.pool_size" times', function () {
-      var stub = sinon.stub(client, '__create_pool_connection');
-
-      client.__setup_socket_pool();
-
-      stub.callCount.should.be.equal(client.config.pool_size);
-      client.__create_pool_connection.restore();
-    });
-  });
-
-  describe('__create_pool_connection method', function () {
-    beforeEach(function () {
-      var self = this;
-      var socket = self.socket = new FakeSocket();
-
-      this.net_stub = sinon.stub(net, 'connect', function (port, host, cb) {
-        if (cb) {
-          cb(socket);
-        }
-        return socket;
-      });
-
-      this.clock = sinon.useFakeTimers();
-    });
-
-    it('should try to create socket to remote server', function () {
-      client.__create_pool_connection();
-
-      this.net_stub.calledOnce.should.be.true();
-      this.net_stub.firstCall.args.slice(0, 2).should.be.eql([
-        client.config.remote_server.port,
-        client.config.remote_server.host
-      ]);
-    });
-
-    it('should write uid to socket after connect', function () {
-      var callback = sinon.stub();
-      this.socket.on('fake_write', callback);
-
-      client.__create_pool_connection();
-      this.socket.connect();
-
-      callback.calledOnce.should.be.true();
-      var data = callback.firstCall.args[0];
-      data.should.be.a.String();
-
-      var body;
-      try {
-        body = JSON.parse(data);
-      } catch (e) {}
-
-      should.exists(body);
-      body.should.be.an.Object();
-      body.should.have.keys(['uuid']);
-      body.uuid.should.be.equal(client.uuid);
-    });
-
-    it('should decrease pool length and call itself when data received from remote', function () {
-      var socket = new FakeSocket();
-      client.pool = [socket];
-
-      client.__create_pool_connection();
-      var stub = sinon.stub(client, '__create_pool_connection');
-      this.socket.connect();
-      this.socket.data({});
-
-      stub.calledOnce.should.be.true();
-      stub.restore();
-    });
-
-    it('should close remote connection on error in local connection', function () {
-      client.__create_pool_connection();
-      var stub = sinon.stub(client, '__create_pool_connection');
-      this.net_stub.restore();
-
-      var socket = new FakeSocket();
-      this.net_stub = sinon.stub(net, 'connect', function (port, host, cb) {
-        if (cb) {
-          cb(socket);
-        }
-        return socket;
-      });
-
-      this.socket.connect();
-      this.socket.data({});
-
-      this.socket.closed.should.be.false();
-
-      socket.error();
-
-      this.net_stub.calledOnce.should.be.true();
-      this.socket.closed.should.be.true();
-
-      stub.restore();
-    });
-
-    it('should close local connection on error in remote connection', function () {
-      client.__create_pool_connection();
-      var stub = sinon.stub(client, '__create_pool_connection');
-      this.net_stub.restore();
-
-      var socket = new FakeSocket();
-      this.net_stub = sinon.stub(net, 'connect', function (port, host, cb) {
-        if (cb) {
-          cb(socket);
-        }
-        return socket;
-      });
-
-      this.socket.connect();
-      this.socket.data({});
-
-      socket.closed.should.be.false();
-
-      this.socket.error();
-
-      this.net_stub.calledOnce.should.be.true();
-      socket.closed.should.be.true();
-
-      stub.restore();
-    });
-
-    it('should write data into local socket and pipe they to each other', function () {
-      client.__create_pool_connection();
-      var stub = sinon.stub(client, '__create_pool_connection');
-      this.net_stub.restore();
-
-      var socket = new FakeSocket();
-      this.net_stub = sinon.stub(net, 'connect', function (port, host, cb) {
-        if (cb) {
-          cb(socket);
-        }
-        return socket;
-      });
-
-      this.socket.connect();
-      this.socket.data({});
-
-      socket.connect();
-
-      socket.closed.should.be.false();
-      socket.pipes.concat(this.socket.pipes).forEach(function (sock) {
-        (sock instanceof FakeSocket || sock instanceof stream.Transform).should.be.true();
-      });
-
-      stub.restore();
-    });
-
-    afterEach(function () {
-      this.net_stub.restore();
-      this.clock.restore();
-      client.pool = [];
-    });
-  });
-
   describe('__rewrite_host method', function () {
     it('should not rewrite anything because rewriting disabled in config', function () {
       var callback = sinon.stub();
@@ -400,7 +244,7 @@ describe('Client', function () {
       should.not.exists(callback.firstCall.args[0]);
       var rewrited_str = callback.firstCall.args[1].toString();
       rewrited_str.should.not.be.equal(str);
-      
+
       var host_header = rewrited_str.split('\r\n')[1];
       should.exists(host_header);
       host_header.should.be.equal(str.split('\r\n')[1].replace(host, client.config.rewrite_host));
@@ -412,7 +256,7 @@ describe('Client', function () {
       var stub = sinon.stub(client, '__test_local_connection');
 
       client.connect();
-      
+
       stub.calledOnce.should.be.true();
       stub.restore();
     });
@@ -460,39 +304,12 @@ describe('Client', function () {
       test_stub.restore();
       cleanup_stub.restore();
     });
-
-    it('client should setup master socket and socket pool after test local connection', function () {
-      function callback (cb) {
-        cb.should.be.a.Function();
-        cb();
-      }
-      var stub        = sinon.stub();
-      var test_stub   = sinon.stub(client, '__test_local_connection', callback);
-      var setup_stub  = sinon.stub(client, '__setup_master', callback);
-      var pool_stub   = sinon.stub(client, '__setup_socket_pool');
-
-      client.connect(stub);
-
-      stub.calledOnce.should.be.true();
-      var error = stub.firstCall.args[0];
-      should.not.exists(error);
-      client.connected.should.be.true();
-
-      test_stub.calledOnce.should.be.true();
-      setup_stub.calledOnce.should.be.true();
-      pool_stub.calledOnce.should.be.true();
-
-      test_stub.restore();
-      setup_stub.restore();
-      pool_stub.restore();
-      client.close();
-    });
   });
 
   describe('close method', function () {
     it('should clear ping interval', function () {
       var clear_ping = sinon.stub(client, '__clear_ping_interval');
-      
+
       client.close();
 
       clear_ping.calledOnce.should.be.true();
@@ -502,7 +319,7 @@ describe('Client', function () {
       var socket = new FakeSocket();
 
       client.socket = socket;
-      
+
       client.close();
 
       client.closed.should.be.true();
@@ -512,7 +329,7 @@ describe('Client', function () {
     it('should close all sockets', function () {
       var socket = new FakeSocket();
       client.pool.push(socket);
-      
+
       client.close();
 
       client.pool.length.should.be.equal(0);
@@ -552,24 +369,6 @@ describe('Net errors emulation', function () {
 
     callback.calledOnce.should.be.true();
     callback.firstCall.args[0].should.be.eql(error);
-  });
-
-  it('Should try to connect with timeout error in pool socket', function () {
-    var error = new Error('connect ETIMEDOUT 46.101.13.126:5000');
-    var stub = sinon.stub(this.client, '__remove_from_pool');
-
-    this.client.connect();
-    var local_test_socket = this.sockets[0];
-    local_test_socket.connect();
-
-    var master_socket = this.sockets[1];
-    master_socket.connect();
-    master_socket.data(JSON.stringify({ok: true}));
-
-    this.sockets[2].error(error);
-    stub.calledOnce.should.be.true();
-
-    stub.restore();
   });
 
   it('Should try to reconnect when error in master socket happens after successful connection', function () {

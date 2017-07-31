@@ -326,15 +326,15 @@ describe('Client', function () {
       socket.closed.should.be.true();
     });
 
-    it('should close all sockets', function () {
-      var socket = new FakeSocket();
-      client.pool.push(socket);
-
-      client.close();
-
-      client.pool.length.should.be.equal(0);
-      socket.closed.should.be.true();
-    });
+    // it('should close all sockets', function () {
+    //   var socket = new FakeSocket();
+    //   client.pool.push(socket);
+    //
+    //   client.close();
+    //
+    //   client.pool.length.should.be.equal(0);
+    //   socket.closed.should.be.true();
+    // });
   });
 });
 

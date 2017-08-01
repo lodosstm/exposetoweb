@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-var path      = require('path');
-var optimist  = require('optimist');
+const path      = require('path');
+const optimist  = require('optimist');
 
-var Client    = require('../lib/client');
+const Client    = require('../lib/client');
 
-var default_settings = require('../lib/default_settings');
+const default_settings = require('../lib/default_settings');
 
 var argv  = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--uuid] [--rewrite-host]')
   .alias('h', 'help')
@@ -31,7 +31,7 @@ var argv  = optimist.usage('Usage: $0 [-v] [--rh] [--rp] [--lh] [--lp] [--uuid] 
   .describe('rewrite-host', 'rewrite hostname in http headers')
   .argv;
 
-var config = {
+const config = {
   local_server: {
     host: argv.lh,
     port: Number(argv.lp)
@@ -51,5 +51,5 @@ if (argv.h || argv.help) {
   process.exit(0);
 }
 
-var client = new Client(config);
+const client = new Client(config);
 client.connect();

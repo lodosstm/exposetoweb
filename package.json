@@ -3,8 +3,8 @@
   "version": "0.0.4",
   "description": "Expose your local development to the web with a single command",
   "main": "lib/index.js",
-  "author": "lodossteam",
-  "license": "ISC",
+  "author": "Lodossteam <hello@lodoss.team> (http://www.lodossteam.com)",
+  "license": "MIT",
   "dependencies": {
     "lodash": "^3.10.1",
     "node-uuid": "^1.4.7",
@@ -13,6 +13,7 @@
   "bin": {
     "exposetoweb": "bin/exposetoweb.js"
   },
+  "repository": "lodosstm/exposetoweb",
   "homepage": "http://proxy.lodoss.org",
   "keywords": [],
   "preferGlobal": "true",

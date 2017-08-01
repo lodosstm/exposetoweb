@@ -1,6 +1,6 @@
 {
   "name": "exposetoweb",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Expose your local development to the web with a single command",
   "main": "lib/index.js",
   "author": "Lodossteam <hello@lodoss.team> (http://www.lodossteam.com)",

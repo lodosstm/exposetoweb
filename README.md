@@ -2,6 +2,7 @@
 ### Use-cases
 1. Expose your local development to the web with a single command
 1. Test webhooks
+1. Give access to project for QA
 1. Show your work to employer
 
 ### Install and Run
